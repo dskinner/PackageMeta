@@ -94,11 +94,23 @@ def broadcast(channel, data):
     if not isinstance(channel, (str, unicode)):
         raise Exception("")
 
+    log.info("received broadcast for %s with data: %s", channel, data)
+
     def _broadcast():
         for receiver in _receivers.get(channel, []):
             receiver.receive(data)
 
     threading.Thread(target=_broadcast).start()
+
+
+class PackageMetaBroadcastCommand(sublime_plugin.ApplicationCommand):
+    """
+    """
+    def run(self, channel, data):
+        broadcast(channel, data)
+
+    def is_visible(self):
+        return False
 
 
 def exists(*pkgs):

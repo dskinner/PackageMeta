@@ -8,5 +8,9 @@
 		"caption": "PackageMeta: Set Requires",
 		"command": "package_meta_set_requires",
 		"args": {"module": null, "pkgs": []}
+	},
+	{
+		"caption": "PackageMeta: Broadcast",
+		"command": "package_meta_broadcast"
 	}
 ]

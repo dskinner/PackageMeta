@@ -25,7 +25,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import logging
 import threading
 import os
-import sys
 
 import sublime
 import sublime_plugin
@@ -44,15 +43,6 @@ def logger(level):
 
 
 log = logger(logging.DEBUG)
-
-
-def _add_to_path():
-    log.debug("module name is %s", __name__)
-    path = os.path.join(sublime.packages_path(), "__PackageMeta")
-    if path not in sys.path:
-        log.debug("adding sys path: %s", path)
-        sys.path.append(path)
-_add_to_path()
 
 
 _requires = {}

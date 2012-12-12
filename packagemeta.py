@@ -29,7 +29,10 @@ import os
 import sublime
 import sublime_plugin
 
-PackageControl = __import__("Package Control")
+try:
+    PackageControl = __import__("Package Control")
+except:
+    PackageControl = None
 
 
 def logger(level):
@@ -42,7 +45,7 @@ def logger(level):
     return log
 
 
-log = logger(logging.DEBUG)
+log = logger(logging.WARNING)
 
 
 _requires = {}
@@ -144,10 +147,10 @@ def requires(*pkgs):
             s.add(pkg)
         _requires[fn.__module__] = s
 
-        def _require(*args, **kwargs):
+        def _requires(*args, **kwargs):
             if exists(pkg):
                 return fn(*args, **kwargs)
-        return _require
+        return _requires
     return _decor
 
 
@@ -175,6 +178,9 @@ class PackageMetaSetRequiresCommand(sublime_plugin.WindowCommand):
         for pkg in pkgs:
             s.add(pkg)
         _requires[module] = s
+
+    def is_visible(self):
+        return False
 
 
 class PackageMetaInstallRequiresCommand(sublime_plugin.WindowCommand):
@@ -254,11 +260,15 @@ class PackageMetaInstallRequiresCommand(sublime_plugin.WindowCommand):
         installed = os.listdir(p)
         return [pkg for pkg in self.get_pkgs() if pkg not in installed]
 
+    @requires("Package Control")
     def install_pkg(self, name):
         thread = PackageControl.PackageInstallerThread(PackageControl.PackageManager(), name, None)
         thread.start()
         PackageControl.ThreadProgress(thread, 'Installing package %s' % name,
             'Package %s successfully %s' % (name, "installed"))
+
+    def is_visible(self):
+        return False
 
     def visible(self):
         if not self.get_missing_pkgs():

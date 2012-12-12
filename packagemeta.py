@@ -147,10 +147,10 @@ def requires(*pkgs):
             s.add(pkg)
         _requires[fn.__module__] = s
 
-        def _requires(*args, **kwargs):
+        def _fn(*args, **kwargs):
             if exists(pkg):
                 return fn(*args, **kwargs)
-        return _requires
+        return _fn
     return _decor
 
 

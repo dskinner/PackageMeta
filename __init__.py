@@ -1,1 +1,1 @@
-__all__ = ["packagemeta"]
+from .packagemeta import *

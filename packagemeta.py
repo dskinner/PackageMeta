@@ -30,7 +30,7 @@ import sys
 import sublime
 import sublime_plugin
 
-PackageControl = __import__("Package Control")
+# PackageControl = __import__("Package Control")
 
 
 def logger(level):
@@ -253,10 +253,13 @@ class PackageMetaInstallRequiresCommand(sublime_plugin.WindowCommand):
         return [pkg for pkg in self.get_pkgs() if pkg not in installed]
 
     def install_pkg(self, name):
+        """
         thread = PackageControl.PackageInstallerThread(PackageControl.PackageManager(), name, None)
         thread.start()
         PackageControl.ThreadProgress(thread, 'Installing package %s' % name,
             'Package %s successfully %s' % (name, "installed"))
+        """
+        pass
 
     def visible(self):
         if not self.get_missing_pkgs():

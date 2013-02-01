@@ -25,7 +25,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import logging
 import threading
 import os
-import sys
 
 import sublime
 import sublime_plugin
@@ -43,16 +42,7 @@ def logger(level):
     return log
 
 
-log = logger(logging.DEBUG)
-
-
-def _add_to_path():
-    log.debug("module name is %s", __name__)
-    path = os.path.join(sublime.packages_path(), "__PackageMeta")
-    if path not in sys.path:
-        log.debug("adding sys path: %s", path)
-        sys.path.append(path)
-_add_to_path()
+log = logger(logging.WARNING)
 
 
 _requires = {}
@@ -104,11 +94,23 @@ def broadcast(channel, data):
     if not isinstance(channel, (str, unicode)):
         raise Exception("")
 
+    log.info("received broadcast for %s with data: %s", channel, data)
+
     def _broadcast():
         for receiver in _receivers.get(channel, []):
             receiver.receive(data)
 
     threading.Thread(target=_broadcast).start()
+
+
+class PackageMetaBroadcastCommand(sublime_plugin.ApplicationCommand):
+    """
+    """
+    def run(self, channel, data):
+        broadcast(channel, data)
+
+    def is_visible(self):
+        return False
 
 
 def exists(*pkgs):
@@ -142,10 +144,10 @@ def requires(*pkgs):
             s.add(pkg)
         _requires[fn.__module__] = s
 
-        def _require(*args, **kwargs):
+        def _fn(*args, **kwargs):
             if exists(pkg):
                 return fn(*args, **kwargs)
-        return _require
+        return _fn
     return _decor
 
 
@@ -173,6 +175,9 @@ class PackageMetaSetRequiresCommand(sublime_plugin.WindowCommand):
         for pkg in pkgs:
             s.add(pkg)
         _requires[module] = s
+
+    def is_visible(self):
+        return False
 
 
 class PackageMetaInstallRequiresCommand(sublime_plugin.WindowCommand):
@@ -252,6 +257,7 @@ class PackageMetaInstallRequiresCommand(sublime_plugin.WindowCommand):
         installed = os.listdir(p)
         return [pkg for pkg in self.get_pkgs() if pkg not in installed]
 
+    @requires("Package Control")
     def install_pkg(self, name):
         """
         thread = PackageControl.PackageInstallerThread(PackageControl.PackageManager(), name, None)
@@ -260,6 +266,9 @@ class PackageMetaInstallRequiresCommand(sublime_plugin.WindowCommand):
             'Package %s successfully %s' % (name, "installed"))
         """
         pass
+
+    def is_visible(self):
+        return False
 
     def visible(self):
         if not self.get_missing_pkgs():
